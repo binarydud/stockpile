@@ -4,11 +4,11 @@ from __future__ import unicode_literals
 
 import datetime
 import errno
-import io
 import os
 
 from .base import Storage
 from .exceptions import SuspiciousOperation
+from .hashed import HashedMixin
 from .utils import locks
 from .utils.encoding import filepath_to_uri
 from .utils._os import abspathu, safe_join
@@ -75,20 +75,11 @@ class FileSystem(Storage):
                     locks.lock(fd, locks.LOCK_EX)
                     _file = None
 
-                    # Try to rewind the file
-                    try:
-                        content.seek(0)
-                    except (AttributeError, io.UnsupportedOperation):
-                        pass
-
-                    data = True
-                    while data:
-                        data = content.read(self.chunk_size)
-                        if data:
-                            if _file is None:
-                                mod = "wb" if isinstance(data, bytes) else "wt"
-                                _file = os.fdopen(fd, mod)
-                            _file.write(data)
+                    for chunk in self._chunks(content):
+                        if _file is None:
+                            mode = "wb" if isinstance(chunk, bytes) else "wt"
+                            _file = os.fdopen(fd, mode)
+                        _file.write(chunk)
                 finally:
                     locks.unlock(fd)
 
@@ -164,3 +155,9 @@ class FileSystem(Storage):
         if self.base_url is None:
             return super(FileSystem, self).url(name)
         return urljoin(self.base_url, filepath_to_uri(name))
+
+
+class HashedFileSystem(HashedMixin, FileSystem):
+    """
+    Standard filesystem storage using the hash of the file in the path.
+    """
