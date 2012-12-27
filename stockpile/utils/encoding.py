@@ -1,7 +1,16 @@
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import unicode_literals
+
 import datetime
 from decimal import Decimal
 
 import six
+
+try:
+    from urllib.parse import quote
+except ImportError:     # Python 2
+    from urllib import quote
 
 
 def is_protected_type(obj):
@@ -56,3 +65,57 @@ def force_text(s, encoding="utf-8", strings_only=False, errors="strict"):
         else:
             raise
     return s
+
+
+def force_bytes(s, encoding="utf-8", strings_only=False, errors="strict"):
+    """
+    Returns a bytestring version of 's', encoded as specified in 'encoding'.
+
+    If strings_only is True, don't convert (some) non-string-like objects.
+    """
+    if isinstance(s, bytes):
+        if encoding == 'utf-8':
+            return s
+        else:
+            return s.decode('utf-8', errors).encode(encoding, errors)
+
+    if strings_only and (s is None or isinstance(s, int)):
+        return s
+
+    if not isinstance(s, six.string_types):
+        try:
+            if six.PY3:
+                return six.text_type(s).encode(encoding)
+            else:
+                return bytes(s)
+        except UnicodeEncodeError:
+            if isinstance(s, Exception):
+                # An Exception subclass containing non-ASCII data that doesn't
+                # know how to print itself properly. We shouldn't raise a
+                # further exception.
+                return b' '.join([force_bytes(arg, encoding, strings_only,
+                        errors) for arg in s])
+            return six.text_type(s).encode(encoding, errors)
+    else:
+        return s.encode(encoding, errors)
+
+
+def filepath_to_uri(path):
+    """Convert a file system path to a URI portion that is suitable for
+    inclusion in a URL.
+
+    We are assuming input is either UTF-8 or unicode already.
+
+    This method will encode certain chars that would normally be recognized as
+    special chars for URIs.  Note that this method does not encode the '
+    character, as it is a valid character within URIs.  See
+    encodeURIComponent() JavaScript function for more details.
+
+    Returns an ASCII string containing the encoded result.
+    """
+    if path is None:
+        return path
+
+    # I know about `os.sep` and `os.altsep` but I want to leave
+    # some flexibility for hardcoding separators.
+    return quote(force_bytes(path.replace("\\", "/")), safe=b"/~!*()'")

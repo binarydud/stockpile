@@ -13,6 +13,9 @@ Example Usage::
     ...     locks.lock(f, locks.LOCK_EX)
     ...     f.write("stockpile")
 """
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import unicode_literals
 
 __all__ = ["LOCK_EX", "LOCK_SH", "LOCK_NB", "lock", "unlock"]
 

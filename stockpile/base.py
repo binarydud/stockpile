@@ -1,3 +1,7 @@
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import unicode_literals
+
 import itertools
 import os
 import re
@@ -10,6 +14,11 @@ class Storage(object):
     A base storage class, providing some default behaviors that all other
     storage systems can inherit or override, as necessary.
     """
+
+    def __init__(self, chunk_size=None, **kwargs):
+        self.chunk_size = chunk_size if not chunk_size is None else -1
+
+        super(Storage, self).__init__(**kwargs)
 
     # The following methods represent a public interface to private methods.
     # These shouldn't be overridden by subclasses unless absolutely necessary.

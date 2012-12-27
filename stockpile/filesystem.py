@@ -1,3 +1,7 @@
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import unicode_literals
+
 import datetime
 import errno
 import io
@@ -13,6 +17,9 @@ try:
     from urllib.parse import urljoin
 except ImportError:     # Python 2
     from urlparse import urljoin
+
+
+__all__ = ["FileSystem"]
 
 
 class FileSystem(Storage):
@@ -76,7 +83,7 @@ class FileSystem(Storage):
 
                     data = True
                     while data:
-                        data = self.read(self.chunk_size)
+                        data = content.read(self.chunk_size)
                         if data:
                             if _file is None:
                                 mod = "wb" if isinstance(data, bytes) else "wt"
