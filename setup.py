@@ -21,6 +21,9 @@ setup(
     install_requires=[
         "six",
     ],
+    extras_require={
+        "s3": ["boto", "python-dateutil"],
+    },
 
     packages=find_packages(exclude=["tests"]),
 
