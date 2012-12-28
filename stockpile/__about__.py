@@ -11,7 +11,7 @@ __title__ = "stockpile"
 __summary__ = "Generic file storage abstraction"
 __uri__ = "https://github.com/dstufft/stockpile/"
 
-__version__ = "0.1dev1"
+__version__ = "0.1"
 
 __author__ = "Donald Stufft"
 __email__ = "donald.stufft@gmail.com"
