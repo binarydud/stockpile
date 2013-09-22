@@ -88,7 +88,7 @@ class S3File(object):
     @property
     def _file(self):
         if self._cached_file is None:
-            self._cached_file = io.Bytes()
+            self._cached_file = io.BytesIO()
             if 'r' in self._mode:
                 self._is_dirty = False
                 self.key.get_contents_to_file(self._cached_file)
